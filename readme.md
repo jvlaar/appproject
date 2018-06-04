@@ -8,7 +8,7 @@ Amadeaus brings smart playlists to android, allowing users to combine all id-3 t
 
 ## Visual sketch
 In its core Amadeus aims to remain simple and easy to use. The app is all about giving users easy acces to their favourite music, so that's what it's designed to do.
-![Visual sketch](sketch.png "Visual sketch")
+![Visual sketch](/doc/sketch.png "Visual sketch")
 
 ## Features
 * Select and play music from playlists ^1
