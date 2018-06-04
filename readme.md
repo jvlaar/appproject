@@ -1,4 +1,4 @@
-# Amadeus
+# Amadeus by Jos Vlaar
 Amadeus is an app for music lovers and collectors. Many still keep extensive libraries of music with them on their phones.
 With a properly tagged and organized library the possibilities for a nice listening experience become endless! Unfortunately most current android music apps only support basic filtering on tags like artist, album or genre.
 
