@@ -17,6 +17,7 @@ In its core Amadeus aims to remain simple and easy to use. The app is all about 
 * Create smart playlists based on filter criteria ^1
 * Adjust the rating of songs
 * Have a widget of the music player on the home screen.
+
 _^1 minimum viable product_
 
 ## Prequisites
