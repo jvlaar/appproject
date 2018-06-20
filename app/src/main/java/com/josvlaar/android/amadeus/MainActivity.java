@@ -1,13 +1,16 @@
 package com.josvlaar.android.amadeus;
 
 import android.Manifest;
+import android.content.ComponentName;
 import android.content.ContentResolver;
+import android.content.Context;
+import android.content.Intent;
+import android.content.ServiceConnection;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.net.Uri;
+import android.os.IBinder;
 import android.support.design.widget.TabLayout;
-import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 
@@ -16,21 +19,15 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.os.Bundle;
-import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
-import android.view.ViewGroup;
-
-import android.widget.Adapter;
-import android.widget.ListView;
-import android.widget.TextView;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 
-public class MainActivity extends AppCompatActivity {
+
+public class MainActivity extends AppCompatActivity implements PlaylistInterface, MusicPlayerInterface {
 
     /**
      * The {@link android.support.v4.view.PagerAdapter} that will provide
@@ -46,6 +43,11 @@ public class MainActivity extends AppCompatActivity {
      * The {@link ViewPager} that will host the section contents.
      */
     private ViewPager mViewPager;
+
+    private ArrayList<Song> songList;
+    private MusicService musicService;
+    private Intent playIntent;
+    private boolean musicBound = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -67,7 +69,40 @@ public class MainActivity extends AppCompatActivity {
         mViewPager.addOnPageChangeListener(new TabLayout.TabLayoutOnPageChangeListener(tabLayout));
         tabLayout.addOnTabSelectedListener(new TabLayout.ViewPagerOnTabSelectedListener(mViewPager));
 
+        // Create the songlist
+        this.songList = getSongList();
+        Collections.sort(this.songList, new Comparator<Song>(){
+            public int compare(Song a, Song b){
+                return a.getTitle().compareTo(b.getTitle());
+            }
+        });
+
+        // Get the service
+        if(playIntent==null){
+            playIntent = new Intent(this, MusicService.class);
+            bindService(playIntent, musicConnection, Context.BIND_AUTO_CREATE);
+            startService(playIntent);
+        }
     }
+
+    //connect to the service
+    private ServiceConnection musicConnection = new ServiceConnection(){
+
+        @Override
+        public void onServiceConnected(ComponentName name, IBinder service) {
+            MusicService.MusicBinder binder = (MusicService.MusicBinder)service;
+            //get service
+            musicService = binder.getService();
+            //pass list
+            musicService.setSongList(songList);
+            musicBound = true;
+        }
+
+        @Override
+        public void onServiceDisconnected(ComponentName name) {
+            musicBound = false;
+        }
+    };
 
 
     @Override
@@ -93,100 +128,6 @@ public class MainActivity extends AppCompatActivity {
     }
 
     /**
-     * A placeholder fragment containing a simple view.
-     */
-    public static class SongFragment extends Fragment {
-        /**
-         * The fragment argument representing the section number for this
-         * fragment.
-         */
-        private static final String ARG_SECTION_NUMBER = "section_number";
-
-        private ArrayList<Song> songList;
-        private ListView songView;
-
-        public SongFragment() {
-        }
-
-        /**
-         * Returns a new instance of this fragment for the given section
-         * number.
-         */
-        public static SongFragment newInstance(int sectionNumber) {
-            SongFragment fragment = new SongFragment();
-            Bundle args = new Bundle();
-            args.putInt(ARG_SECTION_NUMBER, sectionNumber);
-            fragment.setArguments(args);
-            return fragment;
-        }
-
-        @Override
-        public void onCreate(Bundle savedInstanceState) {
-            super.onCreate(savedInstanceState);
-            this.songView = (ListView) getActivity().findViewById(R.id.songListView);
-            this.songList = new ArrayList<Song>();
-            getSongList();
-
-            Collections.sort(songList, new Comparator<Song>(){
-                public int compare(Song a, Song b){
-                    return a.getTitle().compareTo(b.getTitle());
-                }
-            });
-
-        }
-
-        @Override
-        public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                                 Bundle savedInstanceState) {
-            View rootView = inflater.inflate(R.layout.fragment_main, container, false);
-            ListView songView = rootView.findViewById(R.id.songListView);
-            Adapter songAdapter = new SongAdapter(this.getActivity(), this.songList);
-            return rootView;
-        }
-
-        private static int MY_PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE;
-
-        private void getSongList() {
-            if (getActivity().checkSelfPermission(Manifest.permission.READ_EXTERNAL_STORAGE)
-                    != PackageManager.PERMISSION_GRANTED) {
-
-                // Should we show an explanation?
-                if (shouldShowRequestPermissionRationale(
-                        Manifest.permission.READ_EXTERNAL_STORAGE)) {
-                    // Explain to the user why we need to read the contacts
-                }
-
-                requestPermissions(new String[]{Manifest.permission.READ_EXTERNAL_STORAGE},
-                        MY_PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE);
-
-                // MY_PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE is an
-                // app-defined int constant that should be quite unique
-
-                return;
-            }
-
-            ContentResolver musicResolver = getActivity().getContentResolver();
-            Uri musicUri = android.provider.MediaStore.Audio.Media.EXTERNAL_CONTENT_URI;
-            Cursor musicCursor = musicResolver.query(musicUri, null, null, null, null);
-
-            if(musicCursor != null && musicCursor.moveToFirst()) {
-                // get columns
-                int titleColumn = musicCursor.getColumnIndex(android.provider.MediaStore.Audio.Media.TITLE);
-                int idColumn = musicCursor.getColumnIndex(android.provider.MediaStore.Audio.Media._ID);
-                int artistColumn = musicCursor.getColumnIndex(android.provider.MediaStore.Audio.Media.ARTIST);
-
-                do {
-                    long currentId = musicCursor.getLong(idColumn);
-                    String currentTitle = musicCursor.getString(titleColumn);
-                    String currentArtist = musicCursor.getString(artistColumn);
-                    this.songList.add(new Song(currentId, currentTitle, currentArtist));
-                }
-                while (musicCursor.moveToNext());
-            }
-        }
-    }
-
-    /**
      * A {@link FragmentPagerAdapter} that returns a fragment corresponding to
      * one of the sections/tabs/pages.
      */
@@ -208,5 +149,48 @@ public class MainActivity extends AppCompatActivity {
             // Show 3 total pages.
             return 3;
         }
+    }
+
+    public ArrayList<Song> getSongList() {
+        if (this.songList != null) return this.songList;
+
+        this.songList = new ArrayList<Song>();
+        if (this.checkSelfPermission(Manifest.permission.READ_EXTERNAL_STORAGE)
+                != PackageManager.PERMISSION_GRANTED) {
+
+            // Should we show an explanation?
+            if (shouldShowRequestPermissionRationale(
+                    Manifest.permission.READ_EXTERNAL_STORAGE)) {
+                // Explain to the user why we need to read the contacts
+            }
+
+            requestPermissions(new String[]{Manifest.permission.READ_EXTERNAL_STORAGE},
+                    MY_PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE);
+        }
+
+        ContentResolver musicResolver = this.getContentResolver();
+        Uri musicUri = android.provider.MediaStore.Audio.Media.EXTERNAL_CONTENT_URI;
+        Cursor musicCursor = musicResolver.query(musicUri, null, null, null, null);
+
+        if(musicCursor != null && musicCursor.moveToFirst()) {
+            // get columns
+            int titleColumn = musicCursor.getColumnIndex(android.provider.MediaStore.Audio.Media.TITLE);
+            int idColumn = musicCursor.getColumnIndex(android.provider.MediaStore.Audio.Media._ID);
+            int artistColumn = musicCursor.getColumnIndex(android.provider.MediaStore.Audio.Media.ARTIST);
+
+            do {
+                long currentId = musicCursor.getLong(idColumn);
+                String currentTitle = musicCursor.getString(titleColumn);
+                String currentArtist = musicCursor.getString(artistColumn);
+                this.songList.add(new Song(currentId, currentTitle, currentArtist));
+            }
+            while (musicCursor.moveToNext());
+        }
+        return this.songList;
+    }
+
+    public void playSong(int songId) {
+        this.musicService.setSong(songId);
+        this.musicService.playSong();
     }
 }
