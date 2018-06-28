@@ -1,21 +1,26 @@
 package com.josvlaar.android.amadeus;
 
 import android.content.Context;
+import android.support.annotation.NonNull;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
 import android.widget.BaseAdapter;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import java.util.ArrayList;
+import java.util.List;
 
-public class SongAdapter extends BaseAdapter {
+public class SongAdapter extends ArrayAdapter<Song> {
 
     private ArrayList<Song> songList;
     private LayoutInflater inflater;
 
-    public SongAdapter(Context context, ArrayList<Song> songList) {
+
+    public SongAdapter(@NonNull Context context, int resource, @NonNull ArrayList<Song> songList) {
+        super(context, resource, songList);
         this.songList = songList;
         this.inflater = LayoutInflater.from(context);
     }
@@ -26,7 +31,7 @@ public class SongAdapter extends BaseAdapter {
     }
 
     @Override
-    public Object getItem(int position) {
+    public Song getItem(int position) {
         return null;
     }
 

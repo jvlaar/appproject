@@ -2,13 +2,10 @@ package com.josvlaar.android.amadeus;
 
 import android.Manifest;
 import android.content.ComponentName;
-import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.content.pm.PackageManager;
-import android.database.Cursor;
-import android.net.Uri;
 import android.os.IBinder;
 import android.support.design.widget.TabLayout;
 import android.support.v7.app.AppCompatActivity;
@@ -19,6 +16,7 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 
@@ -44,10 +42,13 @@ public class MainActivity extends AppCompatActivity implements PlaylistInterface
      */
     private ViewPager mViewPager;
 
-    private ArrayList<Song> songList;
     private MusicService musicService;
     private Intent playIntent;
     private boolean musicBound = false;
+
+    private DatabaseHelper db;
+    static int MY_PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -69,13 +70,17 @@ public class MainActivity extends AppCompatActivity implements PlaylistInterface
         mViewPager.addOnPageChangeListener(new TabLayout.TabLayoutOnPageChangeListener(tabLayout));
         tabLayout.addOnTabSelectedListener(new TabLayout.ViewPagerOnTabSelectedListener(mViewPager));
 
-        // Create the songlist
-        this.songList = getSongList();
-        Collections.sort(this.songList, new Comparator<Song>(){
-            public int compare(Song a, Song b){
-                return a.getTitle().compareTo(b.getTitle());
+        this.db = DatabaseHelper.getInstance(getApplicationContext());
+
+        // Make sure we have permission to look through the file system
+        if (this.checkSelfPermission(Manifest.permission.READ_EXTERNAL_STORAGE)
+                != PackageManager.PERMISSION_GRANTED) {
+            if (shouldShowRequestPermissionRationale(
+                    Manifest.permission.READ_EXTERNAL_STORAGE)) {
             }
-        });
+            requestPermissions(new String[]{Manifest.permission.READ_EXTERNAL_STORAGE},
+                    MY_PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE);
+        }
 
         // Get the service
         if(playIntent==null){
@@ -93,8 +98,6 @@ public class MainActivity extends AppCompatActivity implements PlaylistInterface
             MusicService.MusicBinder binder = (MusicService.MusicBinder)service;
             //get service
             musicService = binder.getService();
-            //pass list
-            musicService.setSongList(songList);
             musicBound = true;
         }
 
@@ -141,56 +144,30 @@ public class MainActivity extends AppCompatActivity implements PlaylistInterface
         public Fragment getItem(int position) {
             // getItem is called to instantiate the fragment for the given page.
             // Return a SongFragment (defined as a static inner class below).
-            return SongFragment.newInstance(position + 1);
+            switch (position) {
+                case 0: return SongFragment.newInstance();
+                case 1: return ArtistFragment.newInstance();
+                default: return SongFragment.newInstance();
+            }
         }
 
         @Override
         public int getCount() {
             // Show 3 total pages.
-            return 3;
+            return 5;
         }
     }
 
-    public ArrayList<Song> getSongList() {
-        if (this.songList != null) return this.songList;
-
-        this.songList = new ArrayList<Song>();
-        if (this.checkSelfPermission(Manifest.permission.READ_EXTERNAL_STORAGE)
-                != PackageManager.PERMISSION_GRANTED) {
-
-            // Should we show an explanation?
-            if (shouldShowRequestPermissionRationale(
-                    Manifest.permission.READ_EXTERNAL_STORAGE)) {
-                // Explain to the user why we need to read the contacts
-            }
-
-            requestPermissions(new String[]{Manifest.permission.READ_EXTERNAL_STORAGE},
-                    MY_PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE);
-        }
-
-        ContentResolver musicResolver = this.getContentResolver();
-        Uri musicUri = android.provider.MediaStore.Audio.Media.EXTERNAL_CONTENT_URI;
-        Cursor musicCursor = musicResolver.query(musicUri, null, null, null, null);
-
-        if(musicCursor != null && musicCursor.moveToFirst()) {
-            // get columns
-            int titleColumn = musicCursor.getColumnIndex(android.provider.MediaStore.Audio.Media.TITLE);
-            int idColumn = musicCursor.getColumnIndex(android.provider.MediaStore.Audio.Media._ID);
-            int artistColumn = musicCursor.getColumnIndex(android.provider.MediaStore.Audio.Media.ARTIST);
-
-            do {
-                long currentId = musicCursor.getLong(idColumn);
-                String currentTitle = musicCursor.getString(titleColumn);
-                String currentArtist = musicCursor.getString(artistColumn);
-                this.songList.add(new Song(currentId, currentTitle, currentArtist));
-            }
-            while (musicCursor.moveToNext());
-        }
-        return this.songList;
+    public void setSongList(ArrayList<Song> songList) {
+        this.musicService.setSongList(songList);
     }
 
     public void playSong(int songId) {
         this.musicService.setSong(songId);
         this.musicService.playSong();
+    }
+
+    public DatabaseHelper getDatabaseHelper() {
+        return this.db;
     }
 }
