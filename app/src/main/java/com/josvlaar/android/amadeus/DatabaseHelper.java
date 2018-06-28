@@ -9,6 +9,7 @@ import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.media.MediaMetadataRetriever;
 import android.net.Uri;
 import android.provider.MediaStore;
 import android.util.Log;
@@ -204,6 +205,9 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 String currentArtist = musicCursor.getString(artistColumn);
                 Song currentSong = new Song(currentTitle, currentArtist, currentUri);
                 currentSong.setAlbum(musicCursor.getString(albumColumn));
+                MediaMetadataRetriever retriever = new MediaMetadataRetriever();
+                retriever.setDataSource(this.context, currentUri);
+                currentSong.setGenre(retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_GENRE));
                 songList.add(currentSong);
                 this.insert(currentSong);
             }
