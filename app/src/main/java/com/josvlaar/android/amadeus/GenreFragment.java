@@ -17,7 +17,7 @@ import android.widget.ListView;
 import java.util.ArrayList;
 
 
-public class ArtistFragment extends Fragment implements AdapterView.OnItemClickListener {
+public class GenreFragment extends Fragment implements AdapterView.OnItemClickListener {
     /**
      * The fragment argument representing the section number for this
      * fragment.
@@ -29,15 +29,15 @@ public class ArtistFragment extends Fragment implements AdapterView.OnItemClickL
     private MusicPlayerInterface musicPlayerHandler;
     private ArrayList<SmartPlaylist> playlistList;
 
-    public ArtistFragment() {
+    public GenreFragment() {
     }
 
     /**
      * Returns a new instance of this fragment for the given section
      * number.
      */
-    public static ArtistFragment newInstance() {
-        ArtistFragment fragment = new ArtistFragment();
+    public static GenreFragment newInstance() {
+        GenreFragment fragment = new GenreFragment();
         Bundle args = new Bundle();
         fragment.setArguments(args);
         return fragment;
@@ -58,18 +58,18 @@ public class ArtistFragment extends Fragment implements AdapterView.OnItemClickL
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        View rootView = inflater.inflate(R.layout.fragment_artist, container, false);
+        View rootView = inflater.inflate(R.layout.fragment_genre, container, false);
         ListView playlistView = (ListView) rootView.findViewById(R.id.songListView);
         DatabaseHelper db = this.playlistHandler.getDatabaseHelper();
-        Cursor result = db.getUniqueArtists();
+        Cursor result = db.getUniqueGenres();
         Log.d("DEBUG", (String.valueOf(result.getCount())));
         this.playlistList = new ArrayList<SmartPlaylist>();
         for (result.moveToFirst(); !result.isAfterLast(); result.moveToNext()) {
             SmartPlaylist playlist = new SmartPlaylist();
             int index;
-            index = result.getColumnIndex("artist");
+            index = result.getColumnIndex("genre");
             playlist.setName(result.getString(index));
-            playlist.setVariable1("artist");
+            playlist.setVariable1("genre");
             playlist.setValue1(result.getString(index));
             this.playlistList.add(playlist);
         }

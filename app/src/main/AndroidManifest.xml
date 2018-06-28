@@ -25,9 +25,10 @@
             </intent-filter>
         </activity>
 
-        <service android:name="com.josvlaar.android.amadeus.MusicService" />
+        <service android:name=".MusicService" />
 
-        <activity android:name=".PlayerActivity"></activity>
+        <activity android:name=".PlayerActivity" />
+        <activity android:name=".AddPlaylistActivity"></activity>
     </application>
 
 </manifest>

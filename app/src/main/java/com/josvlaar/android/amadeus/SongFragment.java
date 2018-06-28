@@ -84,8 +84,6 @@ public class SongFragment extends Fragment implements AdapterView.OnItemClickLis
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
         this.musicPlayerHandler.setSongList(this.getSongList(this.playlist));
         this.musicPlayerHandler.playSong(Integer.parseInt(view.getTag().toString()));
-        Intent intent = new Intent(getActivity(), PlayerActivity.class);
-        startActivity(intent);
     }
 
     public ArrayList<Song> getSongList(SmartPlaylist playlist) {

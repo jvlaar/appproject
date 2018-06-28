@@ -3,7 +3,9 @@ package com.josvlaar.android.amadeus;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
+import android.net.Uri;
 import android.os.Bundle;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
 import android.util.Log;
@@ -17,7 +19,15 @@ import android.widget.ListView;
 import java.util.ArrayList;
 
 
-public class ArtistFragment extends Fragment implements AdapterView.OnItemClickListener {
+/**
+ * A simple {@link Fragment} subclass.
+ * Activities that contain this fragment must implement the
+ * {@link PlaylistFragment.OnFragmentInteractionListener} interface
+ * to handle interaction events.
+ * Use the {@link PlaylistFragment#newInstance} factory method to
+ * create an instance of this fragment.
+ */
+public class PlaylistFragment extends Fragment implements AdapterView.OnItemClickListener {
     /**
      * The fragment argument representing the section number for this
      * fragment.
@@ -29,15 +39,15 @@ public class ArtistFragment extends Fragment implements AdapterView.OnItemClickL
     private MusicPlayerInterface musicPlayerHandler;
     private ArrayList<SmartPlaylist> playlistList;
 
-    public ArtistFragment() {
+    public PlaylistFragment() {
     }
 
     /**
      * Returns a new instance of this fragment for the given section
      * number.
      */
-    public static ArtistFragment newInstance() {
-        ArtistFragment fragment = new ArtistFragment();
+    public static PlaylistFragment newInstance() {
+        PlaylistFragment fragment = new PlaylistFragment();
         Bundle args = new Bundle();
         fragment.setArguments(args);
         return fragment;
@@ -58,24 +68,23 @@ public class ArtistFragment extends Fragment implements AdapterView.OnItemClickL
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        View rootView = inflater.inflate(R.layout.fragment_artist, container, false);
+        View rootView = inflater.inflate(R.layout.fragment_playlist, container, false);
         ListView playlistView = (ListView) rootView.findViewById(R.id.songListView);
         DatabaseHelper db = this.playlistHandler.getDatabaseHelper();
-        Cursor result = db.getUniqueArtists();
-        Log.d("DEBUG", (String.valueOf(result.getCount())));
-        this.playlistList = new ArrayList<SmartPlaylist>();
-        for (result.moveToFirst(); !result.isAfterLast(); result.moveToNext()) {
-            SmartPlaylist playlist = new SmartPlaylist();
-            int index;
-            index = result.getColumnIndex("artist");
-            playlist.setName(result.getString(index));
-            playlist.setVariable1("artist");
-            playlist.setValue1(result.getString(index));
-            this.playlistList.add(playlist);
-        }
+        this.playlistList = db.selectAllPlaylists();
         ArrayAdapter playlistAdapter = new PlaylistAdapter(this.getActivity(), R.layout.playlist_view, this.playlistList);
         playlistView.setAdapter(playlistAdapter);
         playlistView.setOnItemClickListener(this);
+
+        FloatingActionButton fab = rootView.findViewById(R.id.fab);
+        fab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(getActivity(), AddPlaylistActivity.class);
+                startActivity(intent);
+            }
+        });
+
         return rootView;
     }
 

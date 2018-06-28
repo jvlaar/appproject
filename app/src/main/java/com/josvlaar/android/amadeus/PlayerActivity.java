@@ -9,6 +9,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.ImageButton;
 import android.widget.MediaController;
 import android.widget.TextView;
 
@@ -42,6 +43,7 @@ public class PlayerActivity extends AppCompatActivity implements MediaController
         TextView artist = findViewById(R.id.SongArtistView);
         title.setText(this.musicService.getCurrentSong().getTitle());
         artist.setText(this.musicService.getCurrentSong().getArtist());
+        this.controller.show();
     }
 
     @Override
@@ -60,7 +62,7 @@ public class PlayerActivity extends AppCompatActivity implements MediaController
 
     private void playNext(){
         this.musicService.playNext();
-        controller.show(0);
+        this.onServiceConnected();
     }
 
     @Override
@@ -126,7 +128,7 @@ public class PlayerActivity extends AppCompatActivity implements MediaController
 
     private void playPrev(){
         this.musicService.playPrevious();
-        controller.show(0);
+        this.onServiceConnected();
     }
 
     private void setController(){

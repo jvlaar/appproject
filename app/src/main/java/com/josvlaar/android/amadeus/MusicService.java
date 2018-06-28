@@ -79,11 +79,8 @@ public class MusicService extends Service implements
     public void playSong() {
         this.player.reset();
         Song playSong = this.songList.get(this.songPos);
-        long currentSong = playSong.getId();
         this.songTitle = playSong.getTitle();
-        Uri trackUri = ContentUris.withAppendedId(
-                android.provider.MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,
-                currentSong);
+        Uri trackUri = playSong.getUri();
 
         try{
             player.setDataSource(getApplicationContext(), trackUri);
@@ -166,13 +163,13 @@ public class MusicService extends Service implements
         if(shuffle){
             int newSong = this.songPos;
             while(newSong == this.songPos){
-                newSong = this.random.nextInt(this.songList.size());
+                newSong = this.random.nextInt(this.songList.size() - 1);
             }
             this.songPos = newSong;
         }
         else {
             this.songPos++;
-            if (this.songPos > this.songList.size()) this.songPos = 0;
+            if (this.songPos > this.songList.size() - 1) this.songPos = 0;
         }
         playSong();
     }

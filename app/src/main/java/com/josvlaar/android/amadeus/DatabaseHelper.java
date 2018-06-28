@@ -35,8 +35,9 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     @Override
     public void onCreate(SQLiteDatabase db) {
-        String query = "CREATE TABLE songs( _id INTEGER PRIMARY KEY, title VARCHAR(100), artist VARCHAR(100), album VARCHAR(100), genre VARCHAR(100), uri VARCHAR(500)); " +
-                "CREATE TABLE playlists( _id INTEGER PRIMARY KEY, title VARCHAR(100), condition1_variable VARCHAR(100), condition1_value VARCHAR(100), condition2_variable VARCHAR(100));";
+        String query = "CREATE TABLE songs( _id INTEGER PRIMARY KEY, title VARCHAR(100), artist VARCHAR(100), album VARCHAR(100), genre VARCHAR(100), uri VARCHAR(500)); ";
+        db.execSQL(query);
+        query = "CREATE TABLE playlists( _id INTEGER PRIMARY KEY, title VARCHAR(100), condition1_variable VARCHAR(100), condition1_value VARCHAR(100), condition2_variable VARCHAR(100));";
         db.execSQL(query);
     }
 
@@ -46,6 +47,30 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         db.execSQL(query);
         this.onCreate(db);
         this.fillDatabase();
+    }
+
+    public ArrayList<SmartPlaylist> selectAllPlaylists() {
+        SQLiteDatabase db = getWritableDatabase();
+        String query = "SELECT * FROM playlists";
+        Cursor result = db.rawQuery(query, null);
+        ArrayList<SmartPlaylist> playlists = new ArrayList<SmartPlaylist>();
+        for (result.moveToFirst(); !result.isAfterLast(); result.moveToNext()) {
+            int nameColumn = result.getColumnIndex("name");
+            int variable1Column = result.getColumnIndex("variable1");
+            int value1Column = result.getColumnIndex("value1");
+            int variable2Column = result.getColumnIndex("variable2");
+            int value2Column = result.getColumnIndex("value2");
+
+            SmartPlaylist playlist = new SmartPlaylist();
+            playlist.setName(result.getString(nameColumn));
+            playlist.setVariable1(result.getString(variable1Column));
+            playlist.setValue1(result.getString(value1Column));
+            playlist.setVariable2(result.getString(variable2Column));
+            playlist.setValue2(result.getString(value2Column));
+
+            playlists.add(playlist);
+        }
+        return playlists;
     }
 
     public ArrayList<Song> selectAllSongs() {
@@ -134,6 +159,18 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
         SQLiteDatabase db = getWritableDatabase();
         db.insert("songs", null, cv);
+    }
+
+    public void insert(SmartPlaylist playlist) {
+        ContentValues cv = new ContentValues();
+        cv.put("name", playlist.getName());
+        cv.put("variable1", playlist.getVariable1());
+        cv.put("value1", playlist.getValue1());
+        cv.put("variable2", playlist.getVariable2());
+        cv.put("value2", playlist.getValue2());
+
+        SQLiteDatabase db = getWritableDatabase();
+        db.insert("playlists", null, cv);
     }
 
     public void delete(long id) {

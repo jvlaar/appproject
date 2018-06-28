@@ -123,7 +123,8 @@ public class MainActivity extends AppCompatActivity implements PlaylistInterface
         int id = item.getItemId();
 
         //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
+        if (id == R.id.action_rescan) {
+            this.db.onUpgrade(this.db.getWritableDatabase(), 1, 1);
             return true;
         }
 
@@ -147,13 +148,16 @@ public class MainActivity extends AppCompatActivity implements PlaylistInterface
             switch (position) {
                 case 0: return SongFragment.newInstance();
                 case 1: return ArtistFragment.newInstance();
+                case 2: return AlbumFragment.newInstance();
+                case 3: return GenreFragment.newInstance();
+                case 4: return PlaylistFragment.newInstance();
                 default: return SongFragment.newInstance();
             }
         }
 
         @Override
         public int getCount() {
-            // Show 3 total pages.
+            // Show 5 total pages.
             return 5;
         }
     }
@@ -165,6 +169,8 @@ public class MainActivity extends AppCompatActivity implements PlaylistInterface
     public void playSong(int songId) {
         this.musicService.setSong(songId);
         this.musicService.playSong();
+        Intent intent = new Intent(this, PlayerActivity.class);
+        startActivity(intent);
     }
 
     public DatabaseHelper getDatabaseHelper() {
