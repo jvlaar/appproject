@@ -8,6 +8,16 @@
     android:background="@android:color/background_dark"
     android:orientation="vertical">
 
+    <Button
+        android:id="@+id/backButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:backgroundTint="@android:color/background_dark"
+        android:drawableLeft="@android:drawable/ic_menu_close_clear_cancel"
+        android:foregroundTint="@android:color/white"
+        android:text="Back"
+        android:textColor="@android:color/white" />
+
     <ImageView
         android:id="@+id/imageView"
         android:layout_width="300dp"

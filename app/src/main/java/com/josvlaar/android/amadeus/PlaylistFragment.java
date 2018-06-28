@@ -93,10 +93,10 @@ public class PlaylistFragment extends Fragment implements AdapterView.OnItemClic
         SmartPlaylist playlist = this.playlistList.get(Integer.parseInt(view.getTag().toString()));
         // Create fragment and give it an argument specifying the article it should show
         SongFragment newFragment = SongFragment.newInstance(playlist);
-        FragmentTransaction transaction = getActivity().getSupportFragmentManager().beginTransaction();
+        FragmentTransaction transaction = getChildFragmentManager().beginTransaction();
         // Replace whatever is in the fragment_container view with this fragment,
         // and add the transaction to the back stack so the user can navigate back
-        transaction.add(R.id.container, newFragment);
+        transaction.replace(R.id.rootLayout, newFragment, "PlaylistSongFragment");
         transaction.addToBackStack(null);
         // Commit the transaction
         transaction.commit();

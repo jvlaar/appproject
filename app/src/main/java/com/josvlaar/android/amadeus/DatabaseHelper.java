@@ -37,8 +37,10 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     public void onCreate(SQLiteDatabase db) {
         String query = "CREATE TABLE songs( _id INTEGER PRIMARY KEY, title VARCHAR(100), artist VARCHAR(100), album VARCHAR(100), genre VARCHAR(100), uri VARCHAR(500)); ";
         db.execSQL(query);
-        query = "CREATE TABLE playlists( _id INTEGER PRIMARY KEY, title VARCHAR(100), condition1_variable VARCHAR(100), condition1_value VARCHAR(100), condition2_variable VARCHAR(100));";
-        db.execSQL(query);
+        query = "CREATE TABLE playlists( _id INTEGER PRIMARY KEY, title VARCHAR(100), condition1_variable VARCHAR(100), condition1_value VARCHAR(100), condition2_variable VARCHAR(100), condition2_value VARCHAR(100));";
+        try {
+            db.execSQL(query);
+        } catch (Exception e) {}
     }
 
     @Override
@@ -55,11 +57,11 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         Cursor result = db.rawQuery(query, null);
         ArrayList<SmartPlaylist> playlists = new ArrayList<SmartPlaylist>();
         for (result.moveToFirst(); !result.isAfterLast(); result.moveToNext()) {
-            int nameColumn = result.getColumnIndex("name");
-            int variable1Column = result.getColumnIndex("variable1");
-            int value1Column = result.getColumnIndex("value1");
-            int variable2Column = result.getColumnIndex("variable2");
-            int value2Column = result.getColumnIndex("value2");
+            int nameColumn = result.getColumnIndex("title");
+            int variable1Column = result.getColumnIndex("condition1_variable");
+            int value1Column = result.getColumnIndex("condition1_value");
+            int variable2Column = result.getColumnIndex("condition2_variable");
+            int value2Column = result.getColumnIndex("condition2_value");
 
             SmartPlaylist playlist = new SmartPlaylist();
             playlist.setName(result.getString(nameColumn));
@@ -163,11 +165,11 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     public void insert(SmartPlaylist playlist) {
         ContentValues cv = new ContentValues();
-        cv.put("name", playlist.getName());
-        cv.put("variable1", playlist.getVariable1());
-        cv.put("value1", playlist.getValue1());
-        cv.put("variable2", playlist.getVariable2());
-        cv.put("value2", playlist.getValue2());
+        cv.put("title", playlist.getName());
+        cv.put("condition1_variable", playlist.getVariable1());
+        cv.put("condition1_value", playlist.getValue1());
+        cv.put("condition2_variable", playlist.getVariable2());
+        cv.put("condition2_value", playlist.getValue2());
 
         SQLiteDatabase db = getWritableDatabase();
         db.insert("playlists", null, cv);

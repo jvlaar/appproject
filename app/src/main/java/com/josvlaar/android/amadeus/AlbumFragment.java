@@ -62,7 +62,6 @@ public class AlbumFragment extends Fragment implements AdapterView.OnItemClickLi
         ListView playlistView = (ListView) rootView.findViewById(R.id.songListView);
         DatabaseHelper db = this.playlistHandler.getDatabaseHelper();
         Cursor result = db.getUniqueAlbums();
-        Log.d("DEBUG", (String.valueOf(result.getCount())));
         this.playlistList = new ArrayList<SmartPlaylist>();
         for (result.moveToFirst(); !result.isAfterLast(); result.moveToNext()) {
             SmartPlaylist playlist = new SmartPlaylist();
@@ -84,10 +83,10 @@ public class AlbumFragment extends Fragment implements AdapterView.OnItemClickLi
         SmartPlaylist playlist = this.playlistList.get(Integer.parseInt(view.getTag().toString()));
         // Create fragment and give it an argument specifying the article it should show
         SongFragment newFragment = SongFragment.newInstance(playlist);
-        FragmentTransaction transaction = getActivity().getSupportFragmentManager().beginTransaction();
+        FragmentTransaction transaction = getChildFragmentManager().beginTransaction();
         // Replace whatever is in the fragment_container view with this fragment,
         // and add the transaction to the back stack so the user can navigate back
-        transaction.add(R.id.container, newFragment);
+        transaction.replace(R.id.rootLayout, newFragment, "AlbumSongFragment");
         transaction.addToBackStack(null);
         // Commit the transaction
         transaction.commit();

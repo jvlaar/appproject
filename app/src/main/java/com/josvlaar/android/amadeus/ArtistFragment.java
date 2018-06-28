@@ -15,6 +15,7 @@ import android.widget.ArrayAdapter;
 import android.widget.ListView;
 
 import java.util.ArrayList;
+import java.util.List;
 
 
 public class ArtistFragment extends Fragment implements AdapterView.OnItemClickListener {
@@ -62,7 +63,6 @@ public class ArtistFragment extends Fragment implements AdapterView.OnItemClickL
         ListView playlistView = (ListView) rootView.findViewById(R.id.songListView);
         DatabaseHelper db = this.playlistHandler.getDatabaseHelper();
         Cursor result = db.getUniqueArtists();
-        Log.d("DEBUG", (String.valueOf(result.getCount())));
         this.playlistList = new ArrayList<SmartPlaylist>();
         for (result.moveToFirst(); !result.isAfterLast(); result.moveToNext()) {
             SmartPlaylist playlist = new SmartPlaylist();
@@ -73,9 +73,17 @@ public class ArtistFragment extends Fragment implements AdapterView.OnItemClickL
             playlist.setValue1(result.getString(index));
             this.playlistList.add(playlist);
         }
+        Log.d("DEBUG", playlistList.toString());
         ArrayAdapter playlistAdapter = new PlaylistAdapter(this.getActivity(), R.layout.playlist_view, this.playlistList);
         playlistView.setAdapter(playlistAdapter);
         playlistView.setOnItemClickListener(this);
+        List<Fragment> fragmentList = getChildFragmentManager().getFragments();
+        FragmentTransaction transaction = getChildFragmentManager().beginTransaction();
+        for (Fragment fragment : fragmentList) {
+            transaction.remove(fragment);
+            Log.d("DEBUG", "REMOVING FRAGMENT");
+        }
+        transaction.commit();
         return rootView;
     }
 
@@ -84,10 +92,10 @@ public class ArtistFragment extends Fragment implements AdapterView.OnItemClickL
         SmartPlaylist playlist = this.playlistList.get(Integer.parseInt(view.getTag().toString()));
         // Create fragment and give it an argument specifying the article it should show
         SongFragment newFragment = SongFragment.newInstance(playlist);
-        FragmentTransaction transaction = getActivity().getSupportFragmentManager().beginTransaction();
+        FragmentTransaction transaction = getChildFragmentManager().beginTransaction();
         // Replace whatever is in the fragment_container view with this fragment,
         // and add the transaction to the back stack so the user can navigate back
-        transaction.add(R.id.container, newFragment);
+        transaction.replace(R.id.rootLayout, newFragment, "ArtistSongFragment");
         transaction.addToBackStack(null);
         // Commit the transaction
         transaction.commit();

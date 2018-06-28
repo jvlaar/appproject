@@ -77,6 +77,8 @@ public class SongFragment extends Fragment implements AdapterView.OnItemClickLis
         ArrayAdapter songAdapter = new SongAdapter(this.getActivity(), R.layout.song_view, this.db.getSongsFromPlaylist(playlist));
         songView.setAdapter(songAdapter);
         songView.setOnItemClickListener(this);
+        Log.d("DEBUG", "SongFragment: " + this.getTag());
+        Log.d("DEBUG", this.db.getSongsFromPlaylist(playlist).toString());
         return rootView;
     }
 

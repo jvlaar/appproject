@@ -9,6 +9,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.MediaController;
 import android.widget.TextView;
@@ -58,6 +59,14 @@ public class PlayerActivity extends AppCompatActivity implements MediaController
             startService(playIntent);
         }
         this.setController();
+
+        Button backButton = (Button) findViewById(R.id.backButton);
+        backButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                finish();
+            }
+        });
     }
 
     private void playNext(){
