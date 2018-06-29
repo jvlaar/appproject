@@ -44,7 +44,9 @@ public class PlayerActivity extends AppCompatActivity implements MediaController
         TextView artist = findViewById(R.id.SongArtistView);
         title.setText(this.musicService.getCurrentSong().getTitle());
         artist.setText(this.musicService.getCurrentSong().getArtist());
-        this.controller.show();
+        try {
+            this.controller.show();
+        } catch (Exception e) {}
     }
 
     @Override
