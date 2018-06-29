@@ -5,6 +5,8 @@ With a properly tagged and organized library the possibilities for a nice listen
 Amadeaus brings smart playlists to android, allowing users to combine all id-3 tags in their own way to create perfect playlists!
 ![Screenshot](doc/screenshot.png "Screenshot")
 
+When testing this app make sure that your emulator has mp3 files on it with at least the title, artist, album and genre properly tagged!
+
 ## Attribution
 Special thanks to Sue Smith from Tutplus for [her tutorial](https://code.tutsplus.com/tutorials/create-a-music-player-on-android-project-setup--mobile-22764) on creating a music player in Android.
 This tutorial was used as guide to help create the music playback part of Amadeus.
