@@ -3,6 +3,7 @@ Amadeus is an app for music lovers and collectors. Many still keep extensive lib
 With a properly tagged and organized library the possibilities for a nice listening experience become endless! Unfortunately most current android music apps only support basic filtering on tags like artist, album or genre.
 
 Amadeaus brings smart playlists to android, allowing users to combine all id-3 tags in their own way to create perfect playlists!
+
 ![Screenshot](doc/screenshot.png "Screenshot")
 
 When testing this app make sure that your emulator has mp3 files on it with at least the title, artist, album and genre properly tagged!
